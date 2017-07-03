@@ -4,10 +4,45 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const LiveReloadPlugin = require('webpack-livereload-plugin')
+// const IncludeReplaceWebpackPlugin = require('include-replace-webpack-plugin'); 
+const IncludeFileWebpackPlugin = require('include-file-webpack-plugin')
+const _ = require('lodash')
 
 const DEBUG = process.env.NODE_ENV !== 'production'
-const SRC = './web'
-const DEST = './public'
+const SRC = './public'
+const DEST = './dist'
+
+let glob = require("glob")
+
+// glob("public/html/*.html", {}, function (er, files) {
+  // console.log(files);
+  // files is an array of filenames. 
+  // If the `nonull` option is set, and nothing 
+  // was found, then files is ["**/*.js"] 
+  // er is an error object or null. 
+// });
+
+// let s = glob.sync("public/html/*.html",{});
+// console.log(s);
+
+class RegisterPageFactory {
+  constructor(inputs, outputs){
+    this.factories = [];
+
+    inputs.map( (path, index, arr) => {
+      this.factories.push(
+            new IncludeFileWebpackPlugin({
+              directory: './public/html/', //path to directory with files 
+              input: path,
+              output: outputs[index],
+            })
+          );
+      });
+  }
+  getPages(){
+    return this.factories;
+  }
+}
 
 module.exports = {
   cache: true,
@@ -91,13 +126,22 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development'
     }),
-
+    
     // Copying files directly
     new CopyWebpackPlugin([
       { from: `${SRC}/assets`, to: './assets' },
       { from: `${SRC}/html`, to: '.' },
     ]),
-  ].concat(DEBUG ? [
+    
+  ].concat(
+    
+    (new RegisterPageFactory(
+      ['index.html', 'contacts.html'],
+      ['../../tmp/index.html', '../../tmp/contacts.html']
+      )).getPages()
+    
+  )
+  .concat(DEBUG ? [
     // LiveReload in development
     new LiveReloadPlugin({
       appendScriptTag: true
