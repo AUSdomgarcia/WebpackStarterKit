@@ -1,48 +1,21 @@
+/* Modifications */
+let RegisterPageFactory = require('./core/RegisterPageFactory')
+const glob = require('glob')
+const _ = require('lodash')
+const path = require('path');
+
+/* Default */
 const webpack = require('webpack')
 const resolve = require('path').resolve
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const LiveReloadPlugin = require('webpack-livereload-plugin')
-// const IncludeReplaceWebpackPlugin = require('include-replace-webpack-plugin'); 
-const IncludeFileWebpackPlugin = require('include-file-webpack-plugin')
-const _ = require('lodash')
 
 const DEBUG = process.env.NODE_ENV !== 'production'
 const SRC = './public'
 const DEST = './dist'
-
-let glob = require("glob")
-
-// glob("public/html/*.html", {}, function (er, files) {
-  // console.log(files);
-  // files is an array of filenames. 
-  // If the `nonull` option is set, and nothing 
-  // was found, then files is ["**/*.js"] 
-  // er is an error object or null. 
-// });
-
-// let s = glob.sync("public/html/*.html",{});
-// console.log(s);
-
-class RegisterPageFactory {
-  constructor(inputs, outputs){
-    this.factories = [];
-
-    inputs.map( (path, index, arr) => {
-      this.factories.push(
-            new IncludeFileWebpackPlugin({
-              directory: './public/html/', //path to directory with files 
-              input: path,
-              output: outputs[index],
-            })
-          );
-      });
-  }
-  getPages(){
-    return this.factories;
-  }
-}
+const TMP = './tmp'
 
 module.exports = {
   cache: true,
@@ -52,20 +25,26 @@ module.exports = {
   entry: {
     // JavaScript
     'assets/js/app': `${SRC}/js/app.js`,
-
     // CSS
     'assets/css/app': `${SRC}/css/app.js`
   },
 
   output: {
-    path: resolve(__dirname, DEST),
-    filename: '[name].js',
+    // DEFAULT
     pathinfo: DEBUG ? true : false,
-    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
-  },
+    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
+    filename: '[name].js',
+    // TODO:
+    path: resolve(__dirname, `${TMP}`),
+},
 
   module: {
     rules: [
+      /*
+      |
+      | CSS Module Loader
+      |
+      */
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
@@ -88,10 +67,15 @@ module.exports = {
               options: DEBUG
                 ? { sourceMap: 'inline' }
                 : {}
-            },
-          ]
+            }
+          ],
         })
       },
+      /*
+      |
+      | JS Module Loader
+      |
+      */
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -114,7 +98,7 @@ module.exports = {
 
   plugins: [
     // Delete old files when compiling
-    new CleanWebpackPlugin([ DEST ]),
+    new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
 
     // Extract to .css
     new ExtractTextPlugin({
@@ -127,20 +111,27 @@ module.exports = {
       NODE_ENV: 'development'
     }),
     
-    // Copying files directly
-    new CopyWebpackPlugin([
-      { from: `${SRC}/assets`, to: './assets' },
-      { from: `${SRC}/html`, to: '.' },
-    ]),
-    
   ].concat(
     
     (new RegisterPageFactory(
-      ['index.html', 'contacts.html'],
-      ['../../tmp/index.html', '../../tmp/contacts.html']
-      )).getPages()
+      fixPath('public/html/', ''),
+      fixPath('public/html/', '../../tmp/'))
+    ).getPages()
     
+  ).concat(
+    // TODO: Copying files directly upon npm start BUILD only
+    new CopyWebpackPlugin([
+      {from: `${SRC}/assets`, to: `./assets`}, // relative to path TMP
+      // { from: `${SRC}/html`, to: '.' },
+    ])
   )
+
+  .concat([
+    new webpack.HotModuleReplacementPlugin({
+      multiStep: true
+    })
+  ])
+
   .concat(DEBUG ? [
     // LiveReload in development
     new LiveReloadPlugin({
@@ -151,6 +142,7 @@ module.exports = {
     new webpack.LoaderOptionsPlugin({
       debug: true
     })
+  
   ] : []),
 
   // Hide source maps in production (no sourceMappingURL)
@@ -160,7 +152,12 @@ module.exports = {
   stats: stats(),
 
   devServer: {
-    stats: stats()
+    stats: stats(),
+    hot: true,
+    inline: true, // use inline method for hmr 
+    host: 'localhost',
+    port: 8080,
+    contentBase: resolve(__dirname, `${TMP}`) //path.join(__dirname, 'tmp')
   },
 }
 
@@ -170,4 +167,17 @@ function stats () {
     chunks: false,
     assetsSort: 'name',
   }
+}
+
+/*
+| Automate fetching of file from public directory in parallel way.
+| ex. ['index.html', '../../tmp/index.html']
+| @param Inputs, Outputs array
+*/
+function fixPath(path, to){
+  let files = glob.sync('public/html/*.html',{});
+  let trimFiles = _.map(files, (file) => {
+    return file.replace(path, to);
+  });
+  return trimFiles;
 }
