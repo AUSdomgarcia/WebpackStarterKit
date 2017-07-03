@@ -176,8 +176,8 @@ function stats () {
 */
 function fixPath(path, to){
   let files = glob.sync('public/html/*.html',{});
-  let trimFiles = _.map(files, (file) => {
+  let replacedPath = _.map(files, (file) => {
     return file.replace(path, to);
   });
-  return trimFiles;
+  return replacedPath;
 }
