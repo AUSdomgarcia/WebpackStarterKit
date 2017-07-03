@@ -2,7 +2,6 @@
 let RegisterPageFactory = require('./core/RegisterPageFactory')
 const glob = require('glob')
 const _ = require('lodash')
-const path = require('path');
 
 /* Default */
 const webpack = require('webpack')
@@ -176,8 +175,8 @@ function stats () {
 */
 function fixPath(path, to){
   let files = glob.sync('public/html/*.html',{});
-  let replacedPath = _.map(files, (file) => {
+  let filePath = _.map(files, (file) => {
     return file.replace(path, to);
   });
-  return replacedPath;
+  return filePath;
 }
