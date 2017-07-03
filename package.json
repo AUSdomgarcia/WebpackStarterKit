@@ -1,10 +1,11 @@
 {
   "scripts": {
+    
     "build": "webpack --progress --colors -p",
     
     "watch": "webpack --progress --colors --watch",
     
-    "serve": "webpack-dev-server --progress --watch --colors -d",
+    "serve": "webpack-dev-server --progress --watch --colors",
 
     "start": "webpack-dev-server",
     
