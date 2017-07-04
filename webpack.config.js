@@ -26,7 +26,8 @@ module.exports = {
   entry: {
     'assets/js/app' : `${SRC}/js/app.js`,
     'assets/css/style' : `${SRC}/css/style.scss`,
-    'assets/vendor/vendor' : Object.keys(pkg.dependencies)
+    // TODO: segregate vendors
+    // 'assets/vendor/vendor' : Object.keys(pkg.dependencies)
   },
   output: {
       // DEFAULT
@@ -151,11 +152,16 @@ module.exports = {
       NODE_ENV: 'development'
     }),
 
+    // TODO: Optimization
     // new webpack.optimize.UglifyJsPlugin({
     //   compress: {unused: true, dead_code: true, warnings: false}
     // }),
 
-    new webpack.optimize.CommonsChunkPlugin({name:'vendor', filename:'vendor.js'})
+    // TODO: segregate vendors
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   names: ['vendor'],
+    //   minChunks: Infinity
+    // })
     
   ].concat(
     
