@@ -136,10 +136,10 @@ module.exports = {
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    FailPlugin, 
+    FailPlugin,
 
     // Delete old files when compiling
-    // new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
+    new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
 
     // Extract to .css
     new ExtractTextPlugin({
@@ -164,7 +164,7 @@ module.exports = {
     // })
     
   ].concat(
-    
+      
     (new RegisterPageFactory(
       fixPath('public/html/', ''),
       fixPath('public/html/', '../../tmp/'))
@@ -179,22 +179,21 @@ module.exports = {
   )
 
   .concat([
-    new webpack.HotModuleReplacementPlugin({
-      // multiStep: true
-    })
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin()
   ])
 
   .concat(DEBUG ? [
     // LiveReload in development
-    new LiveReloadPlugin({
-      appendScriptTag: true
-    }),
+    // new LiveReloadPlugin({
+    //   appendScriptTag: true
+    // }),
 
     // Debug mode for old webpack plugins
     new webpack.LoaderOptionsPlugin({
       debug: true
     })
-  
+    
   ] : []),
 
   // Hide source maps in production (no sourceMappingURL)
