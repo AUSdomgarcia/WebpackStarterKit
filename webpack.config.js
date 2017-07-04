@@ -2,6 +2,8 @@
 let RegisterPageFactory = require('./core/RegisterPageFactory')
 const glob = require('glob')
 const _ = require('lodash')
+const pkg = require('./package.json');
+const FailPlugin = require('webpack-fail-plugin');
 
 /* Default */
 const webpack = require('webpack')
@@ -22,35 +24,94 @@ module.exports = {
   context: __dirname,
 
   entry: {
-    // JavaScript
-    'assets/js/app': `${SRC}/js/app.js`,
-    // CSS
-    'assets/css/app': `${SRC}/css/app.js`
+    'assets/js/app' : `${SRC}/js/app.js`,
+    'assets/css/style' : `${SRC}/css/style.scss`,
+    'assets/vendor/vendor' : Object.keys(pkg.dependencies)
+  },
+  output: {
+      // DEFAULT
+      // pathinfo: DEBUG ? true : false,
+      // devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
+      
+      // TODO:
+      path: resolve(__dirname, `${TMP}`),
+      filename: '[name].js',
   },
 
-  output: {
-    // DEFAULT
-    pathinfo: DEBUG ? true : false,
-    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
-    filename: '[name].js',
-    // TODO:
-    path: resolve(__dirname, `${TMP}`),
-},
+  watch: true,
 
   module: {
     rules: [
+      {
+        test: /.json$/,
+        loaders: [
+          'json-loader'
+        ]
+      },
       /*
-      |
-      | CSS Module Loader
-      |
+      | JS Linters
       */
       {
-        test: /\.css$/,
+        test: /.js$/,
+        exclude: /node_modules|bower_components/,
+        loader: 'eslint-loader?babel-eslint',
+        enforce: 'pre'
+      },
+      /*
+      | JS Loader - Babel Support
+      */
+      {
+        test: /\.js$/,
+        exclude: /node_modules|bower_components/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: DEBUG
+                ? {
+                  presets: ['env'],
+                  cacheDirectory: true
+                } : 
+                {
+                  presets: ['env'],
+                  cacheDirectory: false,
+                  sourceMap: false,
+                }
+          }
+        ]
+      },
+      /*
+      | Fonts Variance Loaders
+      */
+      {
+        test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
+        loaders: ['url-loader?limit=10000&mimetype=application/font-woff']
+      },
+      {
+        test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, 
+        loaders: ['url-loader?limit=10000&mimetype=application/font-woff']
+      },
+      {
+        test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, 
+        loaders: ['url-loader?limit=10000&mimetype=application/octet-stream']
+      },
+      {
+        test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, 
+        loaders: ['file-loader']
+      },
+      {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, 
+        loaders: ['url-loader?limit=10000&mimetype=image/svg+xml']
+      },
+      /*
+      | CSS Module Loader
+      */
+      {
+        test: /\.(css|scss)$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [
             {
-              loader: 'css-loader',
+              loader: 'css-loader?minimize!sass-loader',
               options: DEBUG
                 ? {
                   url: false,
@@ -60,44 +121,24 @@ module.exports = {
                 {
                   url: false
                 }
-            },
-            {
-              loader: 'postcss-loader',
-              options: DEBUG
-                ? { sourceMap: 'inline' }
-                : {}
             }
           ],
         })
-      },
-      /*
-      |
-      | JS Module Loader
-      |
-      */
-      {
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['env'],
-              cacheDirectory: true
-            }
-          }
-        ]
-      },
+      }
     ],
   },
 
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.css','.scss','.js','.jsx'],
   },
 
   plugins: [
+    new webpack.optimize.OccurrenceOrderPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
+    FailPlugin, 
+
     // Delete old files when compiling
-    new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
+    // new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
 
     // Extract to .css
     new ExtractTextPlugin({
@@ -109,6 +150,12 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development'
     }),
+
+    // new webpack.optimize.UglifyJsPlugin({
+    //   compress: {unused: true, dead_code: true, warnings: false}
+    // }),
+
+    new webpack.optimize.CommonsChunkPlugin({name:'vendor', filename:'vendor.js'})
     
   ].concat(
     
@@ -127,7 +174,7 @@ module.exports = {
 
   .concat([
     new webpack.HotModuleReplacementPlugin({
-      multiStep: true
+      // multiStep: true
     })
   ])
 
