@@ -1,45 +1,47 @@
 /* Modifications */
-let RegisterPageFactory = require('./core/RegisterPageFactory')
-const glob = require('glob')
-const _ = require('lodash')
+let RegisterPageFactory = require('./core/RegisterPageFactory');
+const glob = require('glob');
+const _ = require('lodash');
 const pkg = require('./package.json');
 const FailPlugin = require('webpack-fail-plugin');
 
-/* Default */
-const webpack = require('webpack')
-const resolve = require('path').resolve
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
-const LiveReloadPlugin = require('webpack-livereload-plugin')
+const webpack = require('webpack');
+const resolve = require('path').resolve;
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const LiveReloadPlugin = require('webpack-livereload-plugin');
 
-const DEBUG = process.env.NODE_ENV !== 'production'
-const SRC = './public'
-const DEST = './dist'
-const TMP = './tmp'
+// SET ENV
+const isProd = process.env.NODE_ENV.includes('production');
+
+const SRC = './public';
+const DEST = './dist';
+const TMP = './tmp';
+
+const cssDev  = ['style-loader','css-loader','sass-loader'];
+const cssProd = ExtractTextPlugin.extract({
+                  fallback: 'style-loader',
+                  loader: 'css-loader?minimize!sass-loader',
+                  publicPath: TMP
+                });
+
+const cssConfig = isProd ? cssProd : cssDev;
 
 module.exports = {
   cache: true,
-
   context: __dirname,
-
   entry: {
-    'assets/js/app' : `${SRC}/js/app.js`,
-    'assets/css/style' : `${SRC}/css/style.scss`,
+    main: `${SRC}/appRoot.js`
     // TODO: segregate vendors
     // 'assets/vendor/vendor' : Object.keys(pkg.dependencies)
   },
   output: {
-      // DEFAULT
-      // pathinfo: DEBUG ? true : false,
-      // devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]',
-      
-      // TODO:
-      path: resolve(__dirname, `${TMP}`),
-      filename: '[name].js',
+    path: resolve(__dirname, `${TMP}`),
+    filename: './assets/[name].bundle.js',
   },
-
-  watch: true,
+  // TODO: If necessary
+  // watch: true,
 
   module: {
     rules: [
@@ -55,7 +57,8 @@ module.exports = {
       {
         test: /.js$/,
         exclude: /node_modules|bower_components/,
-        loader: 'eslint-loader?babel-eslint',
+        // loader: 'eslint-loader?babel-eslint',
+        use: ['eslint-loader'],
         enforce: 'pre'
       },
       /*
@@ -64,21 +67,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules|bower_components/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: DEBUG
-                ? {
-                  presets: ['env'],
-                  cacheDirectory: true
-                } : 
-                {
-                  presets: ['env'],
-                  cacheDirectory: false,
-                  sourceMap: false,
-                }
-          }
-        ]
+        use: 'babel-loader'
       },
       /*
       | Fonts Variance Loaders
@@ -108,30 +97,14 @@ module.exports = {
       */
       {
         test: /\.(css|scss)$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader?minimize!sass-loader',
-              options: DEBUG
-                ? {
-                  url: false,
-                  sourceMap: true,
-                  importLoaders: 1
-                } :
-                {
-                  url: false
-                }
-            }
-          ],
-        })
+        use: cssConfig
       }
     ],
   },
-
-  resolve: {
-    extensions: ['.css','.scss','.js','.jsx'],
-  },
+  // TODO: If necessary
+  // resolve: {
+    // extensions: ['.css','.scss','.js','.jsx'],
+  // },
 
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
@@ -139,11 +112,12 @@ module.exports = {
     FailPlugin,
 
     // Delete old files when compiling
-    new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
+    // new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
 
     // Extract to .css
     new ExtractTextPlugin({
-      filename: '[name].css',
+      filename: './assets/[name].bundle.css',
+      disable: !isProd,
       allChunks: true // preserve source maps
     }),
 
@@ -167,7 +141,7 @@ module.exports = {
       
     (new RegisterPageFactory(
       fixPath('public/html/', ''),
-      fixPath('public/html/', '../../tmp/'))
+      fixPath('public/html/', `../.${TMP}/`))
     ).getPages()
     
   ).concat(
@@ -181,23 +155,10 @@ module.exports = {
   .concat([
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin()
-  ])
-
-  .concat(DEBUG ? [
-    // LiveReload in development
-    // new LiveReloadPlugin({
-    //   appendScriptTag: true
-    // }),
-
-    // Debug mode for old webpack plugins
-    new webpack.LoaderOptionsPlugin({
-      debug: true
-    })
-    
-  ] : []),
+  ]),
 
   // Hide source maps in production (no sourceMappingURL)
-  devtool: DEBUG ? 'source-map' : 'hidden-source-map',
+  devtool: !isProd ? 'source-map' : 'hidden-source-map',
 
   // https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/35
   stats: stats(),
@@ -211,15 +172,16 @@ module.exports = {
     contentBase: resolve(__dirname, `${TMP}`) //path.join(__dirname, 'tmp')
   },
 }
-
+  
 function stats () {
   return {
+    warnings: false, // remove warning in console 
     children: false,
     chunks: false,
     assetsSort: 'name',
   }
 }
-
+  
 /*
 | Automate fetching of file from public directory in parallel way.
 | ex. ['index.html', '../../tmp/index.html']

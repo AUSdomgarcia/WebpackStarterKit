@@ -1,0 +1,14 @@
+body {
+	background-color: #222;
+	p, a, h3 {
+		display: block;
+		padding: 0;
+		margin: 0;
+		color: #fff;
+	}
+	div {
+		background-color: orange;
+		border: 1px solid white;
+		padding: 5px 10px;
+	}
+}

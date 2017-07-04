@@ -1,1 +1,5 @@
-Extract not working in HMR
+ExtractTextPlugin not working in HMR
+
+// NOT RELATED LINKS:
+// https://www.npmjs.com/package/reload-html-webpack-plugin
+// in detailed https://blog.madewithenvy.com/getting-started-with-webpack-2-ed2b86c68783
