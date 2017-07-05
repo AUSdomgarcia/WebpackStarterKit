@@ -1,5 +1,21 @@
 {
-  extends: [
-   'stylelint-config-standard'
-  ]
+  "extends" : [
+   "stylelint-config-standard"
+  ],
+  "rules": {
+  	"indentation": null,
+    "max-empty-lines": 4,
+    "string-quotes": "single",
+    "function-url-quotes": "never",
+    "color-hex-length": "long",
+    "number-leading-zero": "never",
+    "max-nesting-depth": 2,
+    "media-feature-no-missing-punctuation": null,
+    "value-list-comma-newline-after": null,
+    "declaration-colon-newline-after": null,
+    "font-family-name-quotes": null,
+    "selector-list-comma-newline-after": null,
+    "rule-empty-line-before": null,
+    "no-missing-end-of-source-newline": null
+  }
 }

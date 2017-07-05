@@ -2,6 +2,7 @@
 const pkg = require('./package.json');
 const FailPlugin = require('webpack-fail-plugin');
 const WebpackShellPlugin = require('webpack-shell-plugin');
+var StyleLintPlugin = require('stylelint-webpack-plugin');
 
 const webpack = require('webpack');
 const resolve = require('path').resolve;
@@ -112,6 +113,9 @@ module.exports = {
     FailPlugin,
     // Delete old files when compiling
     new CleanWebpackPlugin([`${TMP}/*.html`]),
+    new StyleLintPlugin({
+      syntax: 'scss'
+    }),
     // Force create HTML
     new WebpackShellPlugin(pageCommandConfig),
     // Extract to .css
