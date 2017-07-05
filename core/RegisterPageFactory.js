@@ -8,11 +8,11 @@ class RegisterPageFactory {
 
     inputs.map( (path, index, arr) => {
       this.factories.push(
-            new IncludeFileWebpackPlugin({
+            (new IncludeFileWebpackPlugin({
               directory: PUBLIC_HTML,
               input: path,
               output: outputs[index], // parallel inputs to outputs
-            })
+            })).apply()
           );
       });
   }

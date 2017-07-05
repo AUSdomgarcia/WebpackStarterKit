@@ -3,10 +3,10 @@ class CarouselModule {
 		//
 	}
 	next(){
-		console.log('get next page.');
+		console.log('get next page!.');
 	}
 	prev(){
-		console.log('get previous page.');
+		console.log('get previous page!.');
 	}
 }
 module.exports = CarouselModule;

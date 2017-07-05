@@ -1,9 +1,7 @@
 /* Modifications */
-let RegisterPageFactory = require('./core/RegisterPageFactory');
-const glob = require('glob');
-const _ = require('lodash');
 const pkg = require('./package.json');
 const FailPlugin = require('webpack-fail-plugin');
+const WebpackShellPlugin = require('webpack-shell-plugin');
 
 const webpack = require('webpack');
 const resolve = require('path').resolve;
@@ -16,17 +14,14 @@ const LiveReloadPlugin = require('webpack-livereload-plugin');
 const isProd = process.env.NODE_ENV.includes('production');
 
 const SRC = './public';
-const DEST = './dist';
+const DIST = './dist';
 const TMP = './tmp';
 
-const cssDev  = ['style-loader','css-loader','sass-loader'];
-const cssProd = ExtractTextPlugin.extract({
-                  fallback: 'style-loader',
-                  loader: 'css-loader?minimize!sass-loader',
-                  publicPath: TMP
-                });
-
-const cssConfig = isProd ? cssProd : cssDev;
+const pageCommandConfig = ! isProd ? {
+                                  onBuildExit: ['node ./core/command-register-page.js']
+                                } : {
+                                  onBuildEnd: ['node ./core/command-register-page.js']
+                                }
 
 module.exports = {
   cache: true,
@@ -39,15 +34,17 @@ module.exports = {
   output: {
     path: resolve(__dirname, `${TMP}`),
     filename: './assets/[name].bundle.js',
+    pathinfo: !isProd ? true : false,
+    devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
   },
-  // TODO: If necessary
-  // watch: true,
+
+  watch: true,
 
   module: {
     rules: [
       {
         test: /.json$/,
-        loaders: [
+        use: [
           'json-loader'
         ]
       },
@@ -70,34 +67,37 @@ module.exports = {
         use: 'babel-loader'
       },
       /*
-      | Fonts Variance Loaders
+      | Fonts Variance Loader
       */
       {
         test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-        loaders: ['url-loader?limit=10000&mimetype=application/font-woff']
+        use: ['url-loader?limit=10000&mimetype=application/font-woff']
       },
       {
         test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, 
-        loaders: ['url-loader?limit=10000&mimetype=application/font-woff']
+        use: ['url-loader?limit=10000&mimetype=application/font-woff']
       },
       {
         test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, 
-        loaders: ['url-loader?limit=10000&mimetype=application/octet-stream']
+        use: ['url-loader?limit=10000&mimetype=application/octet-stream']
       },
       {
         test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, 
-        loaders: ['file-loader']
+        use: ['file-loader']
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, 
-        loaders: ['url-loader?limit=10000&mimetype=image/svg+xml']
+        use: ['url-loader?limit=10000&mimetype=image/svg+xml']
       },
       /*
       | CSS Module Loader
       */
       {
         test: /\.(css|scss)$/,
-        use: cssConfig
+        use: ExtractTextPlugin.extract({
+                  fallback: 'style-loader',
+                  use: ['css-loader','sass-loader']
+                })
       }
     ],
   },
@@ -110,22 +110,20 @@ module.exports = {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     FailPlugin,
-
     // Delete old files when compiling
-    // new CleanWebpackPlugin([ /*DEST,*/ `${TMP}/assets` ]),
-
+    new CleanWebpackPlugin([`${TMP}/*.html`]),
+    // Force create HTML
+    new WebpackShellPlugin(pageCommandConfig),
     // Extract to .css
     new ExtractTextPlugin({
       filename: './assets/[name].bundle.css',
-      disable: !isProd,
+      // disable:  false, // true when HMR were use in production only, !isProd,
       allChunks: true // preserve source maps
     }),
-
     // Compress React (and others)
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development'
     }),
-
     // TODO: Optimization
     // new webpack.optimize.UglifyJsPlugin({
     //   compress: {unused: true, dead_code: true, warnings: false}
@@ -136,26 +134,25 @@ module.exports = {
     //   names: ['vendor'],
     //   minChunks: Infinity
     // })
-    
   ].concat(
-      
-    (new RegisterPageFactory(
-      fixPath('public/html/', ''),
-      fixPath('public/html/', `../.${TMP}/`))
-    ).getPages()
-    
-  ).concat(
     // TODO: Copying files directly upon npm start BUILD only
     new CopyWebpackPlugin([
       {from: `${SRC}/assets`, to: `./assets`}, // relative to path TMP
-      // { from: `${SRC}/html`, to: '.' },
+      {from: `${SRC}/html`, to: '../public/html' },
     ])
   )
-
-  .concat([
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin()
-  ]),
+  // .concat([
+    // new webpack.HotModuleReplacementPlugin(),
+    // new webpack.NamedModulesPlugin()
+  // ]),
+  .concat( !isProd ? [
+    // LiveReload in development
+    new LiveReloadPlugin(),
+    // Debug mode for old webpack plugins
+    new webpack.LoaderOptionsPlugin({
+      debug: true
+    })
+  ] : []),
 
   // Hide source maps in production (no sourceMappingURL)
   devtool: !isProd ? 'source-map' : 'hidden-source-map',
@@ -165,14 +162,15 @@ module.exports = {
 
   devServer: {
     stats: stats(),
-    hot: true,
-    inline: true, // use inline method for hmr 
-    host: 'localhost',
-    port: 8080,
-    contentBase: resolve(__dirname, `${TMP}`) //path.join(__dirname, 'tmp')
-  },
+    contentBase: TMP
+    // hot: true,
+    // inline: true, /* use inline method for hmr */
+    // host: 'localhost',
+    // port: 8080,
+    // contentBase: resolve(__dirname, `${TMP}`) //path.join(__dirname, 'tmp')
+  }
 }
-  
+
 function stats () {
   return {
     warnings: false, // remove warning in console 
@@ -180,17 +178,4 @@ function stats () {
     chunks: false,
     assetsSort: 'name',
   }
-}
-  
-/*
-| Automate fetching of file from public directory in parallel way.
-| ex. ['index.html', '../../tmp/index.html']
-| @param Inputs, Outputs array
-*/
-function fixPath(path, to){
-  let files = glob.sync('public/html/*.html',{});
-  let filePath = _.map(files, (file) => {
-    return file.replace(path, to);
-  });
-  return filePath;
 }
