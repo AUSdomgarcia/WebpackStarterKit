@@ -11,11 +11,9 @@
     "max-nesting-depth": 2,
     "indentation": null,
     "media-feature-no-missing-punctuation": null,
-    "value-list-comma-newline-after": null,
     "declaration-colon-newline-after": null,
     "font-family-name-quotes": null,
-    "selector-list-comma-newline-after": null,
-    "rule-empty-line-before": null,
-    "no-missing-end-of-source-newline": null
+    "declaration-empty-line-before": null,
+    "selector-list-comma-newline-after": null
   }
 }
