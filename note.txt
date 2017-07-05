@@ -10,3 +10,10 @@ webpack-dev-server@1.14.1
 
 LIVERELOAD vs HMR
 appedScriptTag to 
+
+
+TODO:
+----
+1. Fix reloading
+2. Try Font 
+3. Load image
