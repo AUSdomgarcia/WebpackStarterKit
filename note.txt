@@ -3,7 +3,7 @@ ExtractTextPlugin not working in HMR
 // NOT RELATED LINKS:
 // https://www.npmjs.com/package/reload-html-webpack-plugin
 // in detailed https://blog.madewithenvy.com/getting-started-with-webpack-2-ed2b86c68783
-
+// https://github.com/stylelint/stylelint
 
 webpack@1.13.0
 webpack-dev-server@1.14.1
@@ -17,3 +17,4 @@ TODO:
 1. Fix reloading
 2. Try Font 
 3. Load image
+4. Prefixer

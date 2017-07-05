@@ -96,9 +96,14 @@ module.exports = {
         test: /\.(css|scss)$/,
         use: ExtractTextPlugin.extract({
                   fallback: 'style-loader',
-                  use: ['css-loader','sass-loader']
+                  use: ['css-loader?-autoprefixer','sass-loader?-autoprefixer']
                 })
+      },
+      {
+        test: /\.(css)$/,
+        use: ['style-loader','css-loader']
       }
+      // 'autoprefixer-loader?browsers=last 2 versions'
     ],
   },
   // TODO: If necessary
@@ -140,6 +145,9 @@ module.exports = {
       {from: `${SRC}/assets`, to: `./assets`},
       {from: `${SRC}/html`, to: '../public/html' },
     ])
+  )
+  .concat(
+    [ require('autoprefixer') ] // not working
   )
   // .concat([
     // new webpack.HotModuleReplacementPlugin(),
