@@ -12,7 +12,7 @@ webpackConfig.plugins.push( (new RegisterPageFactory(
   fixPath('public/html/', `../.${TMP}/`))
 ).getPages() )
 
-console.log('Recompiling HTML', fixPath('public/html/', ''));
+console.log('NWmodule: Compiled HTML at ./TMP successfully.');
 
 /*
 | Automate fetching of file from public directory in parallel way.
