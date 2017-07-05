@@ -11,18 +11,18 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
 
-// SET ENV
 const isProd = process.env.NODE_ENV.includes('production');
 
 const SRC = './public';
 const DIST = './dist';
 const TMP = './tmp';
 
-const pageCommandConfig = ! isProd ? {
-                                  onBuildExit: ['node ./core/command-register-page.js']
-                                } : {
-                                  onBuildEnd: ['node ./core/command-register-page.js']
-                                }
+const pageCommandConfig = 
+      ! isProd ? {
+        onBuildExit: ['node ./core/command-register-page.js']
+      } : {
+        onBuildEnd: ['node ./core/command-register-page.js']
+      }
 
 module.exports = {
   cache: true,
@@ -38,9 +38,8 @@ module.exports = {
     pathinfo: !isProd ? true : false,
     devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
   },
-
-  watch: true,
-
+  // TODO: if necessary
+  // watch: true,
   module: {
     rules: [
       {
@@ -104,9 +103,8 @@ module.exports = {
   },
   // TODO: If necessary
   // resolve: {
-    // extensions: ['.css','.scss','.js','.jsx'],
+  //  extensions: ['.css','.scss','.js','.jsx'],
   // },
-
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
@@ -132,16 +130,14 @@ module.exports = {
     // new webpack.optimize.UglifyJsPlugin({
     //   compress: {unused: true, dead_code: true, warnings: false}
     // }),
-
     // TODO: segregate vendors
     // new webpack.optimize.CommonsChunkPlugin({
     //   names: ['vendor'],
     //   minChunks: Infinity
     // })
   ].concat(
-    // TODO: Copying files directly upon npm start BUILD only
     new CopyWebpackPlugin([
-      {from: `${SRC}/assets`, to: `./assets`}, // relative to path TMP
+      {from: `${SRC}/assets`, to: `./assets`},
       {from: `${SRC}/html`, to: '../public/html' },
     ])
   )
@@ -166,12 +162,7 @@ module.exports = {
 
   devServer: {
     stats: stats(),
-    contentBase: TMP
-    // hot: true,
-    // inline: true, /* use inline method for hmr */
-    // host: 'localhost',
-    // port: 8080,
-    // contentBase: resolve(__dirname, `${TMP}`) //path.join(__dirname, 'tmp')
+    contentBase: TMP //resolve(__dirname, `${TMP}`) //path.join(__dirname, 'tmp')
   }
 }
 
