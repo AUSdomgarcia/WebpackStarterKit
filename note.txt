@@ -12,10 +12,19 @@ LIVERELOAD vs HMR
 appedScriptTag to 
 
 
-TODO:
+
+
+
+
+LIST OF MILESTONE refer: https://trello.com/b/zW4ID0aJ/internalproject
+-----------------
+
+DONE
 ----
 1. UnCSS
-2. Fix reloading
+2. Load image
+
+TODOS
+-----
 3. Try Font 
-4. Load image
-5. Prefixer
+4. CSS Prefixer
