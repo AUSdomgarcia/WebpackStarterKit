@@ -23,7 +23,7 @@ const TMP = './tmp';
 
 const pageCommandConfig = 
       ! isProd ? {
-        onBuildExit: ['echo "NWmodule: Development HTML" &&node ./core/command-register-page.js']
+        onBuildExit: ['echo "NWmodule: Development HTML" && node ./core/command-register-page.js']
       } : {
         onBuildEnd:  ['echo "NWmodule: Production HTML" && node ./core/command-register-page.js']
       }
