@@ -2,7 +2,7 @@
   "scripts": {
     "old:dev": "SET NODE_ENV=develop && webpack-dev-server",
     "dev": "SET NODE_ENV=develop && webpack-dev-server --progress --colors --watch",
-    "prod": "npm run clean && SET NODE_ENV=production && webpack --progress --colors -p",
+    "prod": "SET NODE_ENV=production && webpack --progress --colors -p",
     "clean": "rimraf ./tmp/*.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,10 +28,14 @@
     "extract-text-webpack-plugin": "2.0.0",
     "file-loader": "^0.11.2",
     "glob": "^7.1.2",
+    "glob-all": "^3.1.0",
     "include-file-webpack-plugin": "^1.0.2",
     "lodash": "^4.17.4",
     "node-sass": "^4.5.3",
     "normalize.css": "5.0.0",
+    "purify-css": "^1.2.5",
+    "purifycss-webpack": "^0.7.0",
+    "resolve-url-loader": "^2.1.0",
     "sass-loader": "^6.0.6",
     "style-loader": "0.13.2",
     "stylelint": "7.9.0",

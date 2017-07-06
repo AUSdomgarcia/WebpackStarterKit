@@ -1,0 +1,18 @@
+.icon-camera {
+  background-image: url(../img/sprites.png);
+  background-position: 0px 0px;
+  width: 48px;
+  height: 48px;
+}
+.icon-landscape {
+  background-image: url(../img/sprites.png);
+  background-position: 0px -53px;
+  width: 24px;
+  height: 24px;
+}
+.icon-picture {
+  background-image: url(../img/sprites.png);
+  background-position: -53px 0px;
+  width: 32px;
+  height: 32px;
+}

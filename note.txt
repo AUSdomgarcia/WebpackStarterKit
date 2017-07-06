@@ -14,7 +14,8 @@ appedScriptTag to
 
 TODO:
 ----
-1. Fix reloading
-2. Try Font 
-3. Load image
-4. Prefixer
+1. UnCSS
+2. Fix reloading
+3. Try Font 
+4. Load image
+5. Prefixer

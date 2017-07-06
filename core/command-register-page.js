@@ -2,18 +2,14 @@
 'use strict';
 
 let RegisterPageFactory = require('./RegisterPageFactory');
-let webpackConfig = require('../webpack.config');
 let glob = require('glob');
 let _ = require('lodash');
 const TMP = './tmp';
 
-webpackConfig.plugins.push( (new RegisterPageFactory(
+(new RegisterPageFactory(
   fixPath('public/html/', ''),
   fixPath('public/html/', `../.${TMP}/`))
-).getPages() )
-
-console.log('NWmodule: Compiled HTML at ./TMP successfully.');
-
+)
 /*
 | Automate fetching of file from public directory in parallel way.
 | ex. ['index.html', '../../tmp/index.html']

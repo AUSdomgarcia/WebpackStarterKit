@@ -16,7 +16,6 @@ class RegisterPageFactory {
           );
       });
   }
-  
   getPages(){
     return this.factories;
   }

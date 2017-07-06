@@ -1,26 +1,19 @@
-body {
-	article, p, h1, h2, h3, h4, a {
-		padding: 0;
-		margin: 0;
-	}
-	background-color: #111111;
+// # https://github.com/sass/node-sass/issues/1270
+// # Add ; in every import
 
-	p, a {
-		color: #ffffff;
-		font-weight: bold;
-	}
-
-	h1, h2, h3, h4 {
-		display: block;
-		padding: 0;
-		margin: 0;
-		color: #ffffff;
-	}
-
-	div {
-		background-color: orange;
-		border: 1px solid white;
-		padding: 5px 10px;
-		border-radius: 10px;
-	}
-}
+/* Variables */
+;@import "base/variables"
+/* Fonts */
+;@import "base/fonts"
+/* Mixins */
+;@import "base/mixins"
+/* Sprites */
+;@import "base/sprites"
+/* Global Styles */
+;@import "base/globals"
+;@import "base/header"
+;@import "base/footer"
+/* Components */
+;@import "components/buttons"
+/* Pages */
+;@import "pages/home"

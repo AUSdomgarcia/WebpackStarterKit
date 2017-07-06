@@ -1,0 +1,21 @@
+.red {
+	border: 1px solid red;
+	display: block;
+}
+.blue {
+	border: 1px solid blue;
+	display: block;
+}
+.green {
+	border: 1px solid green;
+	display: block;
+}
+body {
+	h1, h2, h3, h4, p, a {
+		color: #fff;
+	}
+	background-color: #333;
+	div {
+		border: 1px solid #fff;
+	}
+}
