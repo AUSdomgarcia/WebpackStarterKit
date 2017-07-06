@@ -162,10 +162,18 @@ module.exports = {
         ]),
         styleExtensions: ['.css'],
         moduleExtensions: ['.html'],
-        verbose: true,
-        minimize: false,
+        verbose: false,
+        minimize: true,
         purifyOptions: {
-          whitelist: ['active']
+          whitelist: [
+            'fa',
+            'active',
+            'current-menu-item',
+            'selectboxit',
+            'mfp',
+            'slicknav',
+            'store-legends'
+            ]
         }
       }),
       // Compress React (and others)
@@ -194,7 +202,7 @@ module.exports = {
     stats: stats(),
     devServer: {
       stats: stats(),
-      contentBase: path.join(__dirname, './tmp')
+      contentBase: path.join(__dirname, `${TMP}`)
     }
 }
 
