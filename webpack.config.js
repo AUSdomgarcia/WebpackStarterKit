@@ -160,13 +160,12 @@ module.exports = {
           path.join(__dirname, `${SRC}/html/*.html`),
           path.join(__dirname, `${SRC}/html/layout/*.html`)
         ]),
-        // paths: glob.sync( path.join(__dirname, `${SRC}/html/*.html`) ),
         styleExtensions: ['.css'],
         moduleExtensions: ['.html'],
         verbose: true,
         minimize: false,
         purifyOptions: {
-          whitelist: []
+          whitelist: ['active']
         }
       }),
       // Compress React (and others)
