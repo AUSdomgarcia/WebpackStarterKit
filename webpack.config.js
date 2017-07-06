@@ -156,19 +156,11 @@ module.exports = {
         allChunks: true // preserve source maps
       }),
       new PurifyCSSPlugin({
-
         paths: glob_all.sync([
           path.join(__dirname, `${SRC}/html/*.html`),
           path.join(__dirname, `${SRC}/html/layout/*.html`)
         ]),
-        
         // paths: glob.sync( path.join(__dirname, `${SRC}/html/*.html`) ),
-
-        // paths: {
-        //   './public/html' : glob.sync( path.join(__dirname, `${SRC}/html/*.html`) ),
-        //   './public/html/layout' : glob.sync( path.join(__dirname, `${SRC}/html/layout/*.html`) ),
-        // },
-
         styleExtensions: ['.css'],
         moduleExtensions: ['.html'],
         verbose: true,
