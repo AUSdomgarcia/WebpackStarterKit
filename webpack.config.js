@@ -121,6 +121,12 @@ module.exports = {
                       loader: 'sass-loader'
                      },
                      {
+                      loader: 'sass-resources-loader',
+                      options: {
+                        resources: path.join(__dirname, `${SRC}/bootstrap/**/*.scss`),
+                      }
+                     },
+                     {
                       loader: 'resolve-url-loader'
                      }]
               })

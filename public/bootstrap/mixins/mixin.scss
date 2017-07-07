@@ -1,0 +1,9 @@
+/*
+| For the use of variables and mixins
+| using bootstrap resources you may refer to links below
+|*/
+// https://github.com/shakacode/bootstrap-loader#faq
+// https://github.com/shakacode/sass-resources-loader/blob/master/example/webpack.config.js
+@mixin center-text {
+  text-align: center;
+}
