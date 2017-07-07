@@ -1,18 +1,14 @@
 (function(){
 'use strict';
 
-const isProd = process.env.NODE_ENV.includes('production');
-const DIST = './dist';
-const TMP = './tmp';
-const ENV = ! isProd ? TMP : DIST;
-
 let RegisterPageFactory = require('./RegisterPageFactory');
 let glob = require('glob');
 let _ = require('lodash');
+const TMP = './tmp';
 
 (new RegisterPageFactory(
   fixPath('public/html/', ''),
-  fixPath('public/html/', `../.${ENV}/`))
+  fixPath('public/html/', `../.${TMP}/`))
 )
 /*
 | Automate fetching of file from public directory in parallel way.

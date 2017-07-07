@@ -28,7 +28,7 @@ const pageCommandConfig =
         onBuildEnd:  ['echo "NWmodule: Production HTML" && node ./core/command-register-page.js']
       } 
 
-const cleanFilesConfig = ! isProd ? [`${ENV}/*.html`] : [`${ENV}/`];
+const cleanFilesConfig = ! isProd ? [`${TMP}/*.html`] : [`${TMP}/`];
 
 console.log('DEBUG:', path.join(__dirname, `${SRC}/html/*.html`));
 
@@ -41,7 +41,7 @@ module.exports = {
     // 'assets/vendor/vendor' : Object.keys(pkg.dependencies)
   },
   output: {
-    path: resolve(__dirname, `${ENV}`),
+    path: resolve(__dirname, `${TMP}`),
     filename: './[name].bundle.js',
     pathinfo: !isProd ? true : false,
     devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
@@ -164,7 +164,7 @@ module.exports = {
         styleExtensions: ['.css'],
         moduleExtensions: ['.html'],
         verbose: true,
-        minimize: ( ! isProd ? false :  true),
+        minimize: false,
         purifyOptions: {
           whitelist: [
             'fa',
@@ -203,7 +203,7 @@ module.exports = {
     stats: stats(),
     devServer: {
       stats: stats(),
-      contentBase: path.join(__dirname, `${ENV}`)
+      contentBase: path.join(__dirname, `${TMP}`)
     }
 }
 
