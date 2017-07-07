@@ -1,6 +1,5 @@
 /* Modifications */
 const glob_all = require('glob-all');
-const glob = require('glob');
 const path = require('path');
 const pkg = require('./package.json');
 const FailPlugin = require('webpack-fail-plugin');
@@ -20,15 +19,16 @@ const isProd = process.env.NODE_ENV.includes('production');
 const SRC = './public';
 const DIST = './dist';
 const TMP = './tmp';
+const ENV = ! isProd ? TMP : DIST;
 
 const pageCommandConfig = 
       ! isProd ? {
         onBuildExit: ['echo "NWmodule: Development HTML" && node ./core/command-register-page.js']
       } : {
         onBuildEnd:  ['echo "NWmodule: Production HTML" && node ./core/command-register-page.js']
-      }
+      } 
 
-const cleanFilesConfig = ! isProd ? [`${TMP}/*.html`] : [`${TMP}/`];
+const cleanFilesConfig = ! isProd ? [`${ENV}/*.html`] : [`${ENV}/`];
 
 console.log('DEBUG:', path.join(__dirname, `${SRC}/html/*.html`));
 
@@ -41,7 +41,7 @@ module.exports = {
     // 'assets/vendor/vendor' : Object.keys(pkg.dependencies)
   },
   output: {
-    path: resolve(__dirname, `${TMP}`),
+    path: resolve(__dirname, `${ENV}`),
     filename: './[name].bundle.js',
     pathinfo: !isProd ? true : false,
     devtoolModuleFilenameTemplate: 'webpack:///[absolute-resource-path]'
@@ -79,23 +79,23 @@ module.exports = {
         */
         {
           test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-          use: ['url-loader?limit=10000&mimetype=application/font-woff']
+          use: ['file-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
         },
         {
           test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, 
-          use: ['url-loader?limit=10000&mimetype=application/font-woff']
+          use: ['file-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
         },
         {
           test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, 
-          use: ['url-loader?limit=10000&mimetype=application/octet-stream']
+          use: ['file-loader?limit=10000&mimetype=application/octet-stream&&name=fonts/[name].[ext]']
         },
         {
           test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, 
-          use: ['file-loader']
+          use: ['file-loader?limit=10000&mimetype=application/octet-stream&&name=fonts/[name].[ext]']
         },
         {
           test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, 
-          use: ['url-loader?limit=10000&mimetype=image/svg+xml']
+          use: ['file-loader?limit=10000&mimetype=image/svg+xml&&name=fonts/[name].[ext]']
         },
         /*
         | CSS Module Loader
@@ -131,7 +131,7 @@ module.exports = {
     },
     // TODO: If necessary
     resolve: {
-     extensions: ['.css','.scss','.js','.jsx'],
+     extensions: ['.css','.scss','.js','.woff2','.svg','.ttf','.eot','.woff'],
     },
     plugins: [
       new webpack.optimize.OccurrenceOrderPlugin(),
@@ -148,6 +148,7 @@ module.exports = {
       new CopyWebpackPlugin([
         {from: `${SRC}/img`, to: `./img`},
         {from: `${SRC}/html`, to: '../public/html' },
+        {from: `${SRC}/fonts`, to: '../public/fonts'}
       ]),
       // Extract to .css
       new ExtractTextPlugin({
@@ -162,8 +163,8 @@ module.exports = {
         ]),
         styleExtensions: ['.css'],
         moduleExtensions: ['.html'],
-        verbose: false,
-        minimize: true,
+        verbose: true,
+        minimize: ( ! isProd ? false :  true),
         purifyOptions: {
           whitelist: [
             'fa',
@@ -202,7 +203,7 @@ module.exports = {
     stats: stats(),
     devServer: {
       stats: stats(),
-      contentBase: path.join(__dirname, `${TMP}`)
+      contentBase: path.join(__dirname, `${ENV}`)
     }
 }
 
