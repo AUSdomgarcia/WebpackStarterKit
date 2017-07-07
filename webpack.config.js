@@ -1,5 +1,6 @@
 /* Modifications */
 const glob_all = require('glob-all');
+const glob = require('glob');
 const path = require('path');
 const pkg = require('./package.json');
 const FailPlugin = require('webpack-fail-plugin');
@@ -19,7 +20,6 @@ const isProd = process.env.NODE_ENV.includes('production');
 const SRC = './public';
 const DIST = './dist';
 const TMP = './tmp';
-const ENV = ! isProd ? TMP : DIST;
 
 const pageCommandConfig = 
       ! isProd ? {
@@ -157,11 +157,11 @@ module.exports = {
         allChunks: true // preserve source maps
       }),
       new PurifyCSSPlugin({
-        paths: glob_all.sync([
+        paths: glob_all.sync([ 
           path.join(__dirname, `${SRC}/html/*.html`),
           path.join(__dirname, `${SRC}/html/layout/*.html`)
         ]),
-        styleExtensions: ['.css'],
+        styleExtensions: ['.scss','.css'],
         moduleExtensions: ['.html'],
         verbose: true,
         minimize: false,
@@ -191,7 +191,7 @@ module.exports = {
       //   minChunks: Infinity
       // })
     ].concat(
-      [ require('autoprefixer') ] // not working
+      // [ require('autoprefixer') ] // not working
     )
     .concat( !isProd ? [
       new LiveReloadPlugin(),
