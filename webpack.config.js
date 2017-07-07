@@ -39,7 +39,8 @@ module.exports = {
   context: __dirname,
   entry: {
     main: `${SRC}/appRoot.js`,
-    bootstrap: bootstrapConfig
+    bootstrap: bootstrapConfig,
+    fontawesome: `${SRC}/fontawesome/index.js`
     // TODO: segregate vendors
     // 'assets/vendor/vendor' : Object.keys(pkg.dependencies)
   },
@@ -83,13 +84,28 @@ module.exports = {
           test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
           use: ['url-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
         },
-        {
-          test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, 
+        { // Rule [1] Made adjustments to load Fontawesome 
+          test: /\.woff2((\?v=\d+\.\d+\.\d+)|(\?v=[0-9]\.[0-9]\.[0-9]))?$/,
           use: ['url-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
         },
-        {
+        { 
           test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, 
           use: ['file-loader?limit=10000&mimetype=application/octet-stream&&name=fonts/[name].[ext]']
+        },
+        { // Rule [2] Made adjustments to load Fontawesome 
+          test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
+          use: ['file-loader?limit=10000&mimetype=application/octet-stream&&name=fonts/[name].[ext]']
+        },
+        {
+          test: /font-awesome\.config\.js/,
+          use: [
+            {
+              loader: 'style-loader'
+            },
+            {
+              loader: 'font-awesome-loader'
+            }
+          ]
         },
         {
           test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, 
@@ -160,7 +176,7 @@ module.exports = {
       new CopyWebpackPlugin([
         {from: `${SRC}/img`, to: `./img`},
         {from: `${SRC}/html`, to: '../public/html' },
-        {from: `${SRC}/fonts`, to: '../public/fonts'}
+        // {from: `${SRC}/fonts`, to: '../public/fonts'}
       ]),
       // Extract to .css
       new ExtractTextPlugin({
