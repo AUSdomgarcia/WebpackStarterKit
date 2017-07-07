@@ -1,7 +1,8 @@
 // # https://github.com/sass/node-sass/issues/1270
 // # Add ; in every import
 
-;@import "../fonts/maybe-bold/style.css";
+/* Fonts */
+;@import "../fonts/maybe-bold/style.css"
 /* Variables */
 ;@import "base/variables"
 /* Fonts */

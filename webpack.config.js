@@ -7,6 +7,7 @@ const FailPlugin = require('webpack-fail-plugin');
 const WebpackShellPlugin = require('webpack-shell-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const PurifyCSSPlugin = require('purifycss-webpack');
+const bootstrapEntryPoints = require('./webpack.bootstrap.config');
 
 const webpack = require('webpack');
 const resolve = require('path').resolve;
@@ -16,6 +17,7 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const LiveReloadPlugin = require('webpack-livereload-plugin');
 
 const isProd = process.env.NODE_ENV.includes('production');
+const bootstrapConfig = isProd ? bootstrapEntryPoints.prod : bootstrapEntryPoints.dev;
 
 const SRC = './public';
 const DIST = './dist';
@@ -36,7 +38,8 @@ module.exports = {
   cache: true,
   context: __dirname,
   entry: {
-    main: `${SRC}/appRoot.js`
+    main: `${SRC}/appRoot.js`,
+    bootstrap: bootstrapConfig
     // TODO: segregate vendors
     // 'assets/vendor/vendor' : Object.keys(pkg.dependencies)
   },
@@ -62,7 +65,6 @@ module.exports = {
         {
           test: /.js$/,
           exclude: /node_modules|bower_components/,
-          // loader: 'eslint-loader?babel-eslint',
           use: ['eslint-loader'],
           enforce: 'pre'
         },
@@ -79,11 +81,11 @@ module.exports = {
         */
         {
           test: /\.woff(\?v=\d+\.\d+\.\d+)?$/,
-          use: ['file-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
+          use: ['url-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
         },
         {
           test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, 
-          use: ['file-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
+          use: ['url-loader?limit=10000&mimetype=application/font-woff&&name=fonts/[name].[ext]']
         },
         {
           test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, 
@@ -95,14 +97,21 @@ module.exports = {
         },
         {
           test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, 
-          use: ['file-loader?limit=10000&mimetype=image/svg+xml&&name=fonts/[name].[ext]']
+          use: ['url-loader?limit=10000&mimetype=image/svg+xml&&name=fonts/[name].[ext]']
+        },
+        /*
+        | Bootstrap Dependencies
+        */
+        { 
+          test:/bootstrap-sass[\/\\]assets[\/\\]javascripts[\/\\]/, 
+          loader: 'imports-loader?jQuery=jquery' 
         },
         /*
         | CSS Module Loader
         */
         {
           test: /\.(css|scss)$/,
-          exclude: /node_modules/,
+          // exclude: /node_modules/,
           use: ExtractTextPlugin.extract({
                 fallback: 'style-loader',
                 use:[{
@@ -116,18 +125,15 @@ module.exports = {
                      }]
               })
         },
+        /*
+        | .PNG,.JPG,.SVG Loader
+        */
         {
             test    : /\.(png|jpg|svg)$/,
             include : path.join(__dirname, `${SRC}/img`),
             loader  : 'file-loader?limit=30000&name=img/[name].[ext]'
         }
       ]
-        // ,
-        // {
-        //   test: /\.(css|scss)$/,
-        //   use: ['style-loader','css-loader']
-        // }
-        // 'autoprefixer-loader?browsers=last 2 versions'
     },
     // TODO: If necessary
     resolve: {
